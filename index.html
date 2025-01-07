@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emissão de NFS-e</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emissão de Nota Fiscal de Serviço (NFS-e)</h1>
+
+        <form id="nfseForm">
+            <label for="valorVenda">Valor da Venda:</label>
+            <input type="number" id="valorVenda" step="0.01" required>
+
+            <label for="itens">Itens Vendidos (descrição):</label>
+            <textarea id="itens" rows="4" required></textarea>
+
+            <label for="irpf">Porcentagem do IRPF (%):</label>
+            <input type="number" id="irpf" step="0.01" required>
+
+            <label for="pis">Porcentagem do PIS (%):</label>
+            <input type="number" id="pis" step="0.01" required>
+
+            <label for="cofins">Porcentagem do COFINS (%):</label>
+            <input type="number" id="cofins" step="0.01" required>
+
+            <label for="inss">Porcentagem do INSS (%):</label>
+            <input type="number" id="inss" step="0.01" required>
+
+            <label for="issqn">Porcentagem do ISSQN (%):</label>
+            <input type="number" id="issqn" step="0.01" required>
+
+            <button type="button" onclick="gerarNotaFiscal()">Gerar Nota Fiscal</button>
+        </form>
+
+        <div id="resultado" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function calcularImpostos(valor, porcentagem) {
+            return (valor * porcentagem) / 100;
+        }
+
+        function gerarNotaFiscal() {
+            const valorVenda = parseFloat(document.getElementById('valorVenda').value);
+            const itens = document.getElementById('itens').value;
+            const irpf = parseFloat(document.getElementById('irpf').value);
+            const pis = parseFloat(document.getElementById('pis').value);
+            const cofins = parseFloat(document.getElementById('cofins').value);
+            const inss = parseFloat(document.getElementById('inss').value);
+            const issqn = parseFloat(document.getElementById('issqn').value);
+
+            if (isNaN(valorVenda) || isNaN(irpf) || isNaN(pis) || isNaN(cofins) || isNaN(inss) || isNaN(issqn)) {
+                alert('Por favor, preencha todos os campos corretamente.');
+                return;
+            }
+
+            const impostos = {
+                IRPF: calcularImpostos(valorVenda, irpf),
+                PIS: calcularImpostos(valorVenda, pis),
+                COFINS: calcularImpostos(valorVenda, cofins),
+                INSS: calcularImpostos(valorVenda, inss),
+                ISSQN: calcularImpostos(valorVenda, issqn)
+            };
+
+            const totalImpostos = impostos.IRPF + impostos.PIS + impostos.COFINS + impostos.INSS + impostos.ISSQN;
+            const valorLiquido = valorVenda - totalImpostos;
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.innerHTML = `
+                <h2>Nota Fiscal de Serviço</h2>
+                <p><strong>Itens Vendidos:</strong> ${itens}</p>
+                <p><strong>Valor da Venda:</strong> R$ ${valorVenda.toFixed(2)}</p>
+                <p><strong>Impostos Calculados:</strong></p>
+                <ul>
+                    <li>IRPF: R$ ${impostos.IRPF.toFixed(2)}</li>
+                    <li>PIS: R$ ${impostos.PIS.toFixed(2)}</li>
+                    <li>COFINS: R$ ${impostos.COFINS.toFixed(2)}</li>
+                    <li>INSS: R$ ${impostos.INSS.toFixed(2)}</li>
+                    <li>ISSQN: R$ ${impostos.ISSQN.toFixed(2)}</li>
+                </ul>
+                <p><strong>Total de Impostos:</strong> R$ ${totalImpostos.toFixed(2)}</p>
+                <p><strong>Valor Líquido:</strong> R$ ${valorLiquido.toFixed(2)}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
